@@ -1,4 +1,4 @@
-package edu.nju.wxd.weather.util;
+package edu.nju.wxd.weather.dao;
 
 import android.content.Context;
 import android.database.DatabaseErrorHandler;

@@ -1,4 +1,4 @@
-package edu.nju.wxd.weather.util;
+package edu.nju.wxd.weather.dao;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,6 +16,9 @@ import java.util.Map;
 import edu.nju.wxd.weather.model.City;
 import edu.nju.wxd.weather.model.County;
 import edu.nju.wxd.weather.model.Province;
+import edu.nju.wxd.weather.util.IDGenerator;
+import edu.nju.wxd.weather.util.ResponseCode;
+import edu.nju.wxd.weather.util.ResultData;
 
 /**
  * Created by wxd on 2016/12/23.
