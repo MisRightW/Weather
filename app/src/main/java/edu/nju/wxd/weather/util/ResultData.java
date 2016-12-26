@@ -11,7 +11,7 @@ public class ResultData {
     private String description;
 
     public ResultData() {
-        this.responseCode = responseCode;
+        this.responseCode = ResponseCode.RESPONSE_OK;
     }
 
     public ResponseCode getResponseCode() {
@@ -40,6 +40,6 @@ public class ResultData {
 
     @Override
     public String toString() {
-        return "[responseCode: "+this.responseCode+"data: "+this.data+"description: "+description+"]";
+        return "[responseCode: "+this.responseCode+" data: "+this.data+" description: "+description+"]";
     }
 }

@@ -60,6 +60,8 @@ public class WeatherDB {
                      values.put("name",province.getName());
                      values.put("code",province.getCode());
                      values.put("block_flag",province.isBlockFlag());
+                     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                     values.put("create_time",format.format(province.getCreateAt()));
                      db.insert("province",null,values);
                  }
 
@@ -86,8 +88,11 @@ public class WeatherDB {
                     values.put("name",city.getName());
                     values.put("code",city.getCode());
                     values.put("province_id",city.getProvince().getProvinceId());
+
                     values.put("block_flag",city.isBlockFlag());
-                    db.insert("province",null,values);
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    values.put("create_time",format.format(city.getCreateAt()));
+                    db.insert("city",null,values);
                 }
 
             }catch (Exception e){
@@ -113,8 +118,11 @@ public class WeatherDB {
                     values.put("name",county.getName());
                     values.put("code",county.getCode());
                     values.put("city_id",county.getCity().getCityId());
+
                     values.put("block_flag",county.isBlockFlag());
-                    db.insert("province",null,values);
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    values.put("create_time",format.format(county.getCreateAt()));
+                    db.insert("county",null,values);
                 }
 
             }catch (Exception e){
@@ -174,13 +182,12 @@ public class WeatherDB {
                     }else {
                         province.setBlockFlag(true);
                     }
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date date = (Date) format.parse(cursor.getString(cursor.getColumnIndex("create_time")));
-                    province.setCreateAt(new Timestamp(date.getTime()));
+                    province.setCreateAt(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex("create_time"))));
                     list.add(province);
                 }while (cursor.moveToNext());
             }
             resultData.setData(list);
+
         }catch (Exception e){
             Log.e(TAG,e.getMessage());
             resultData.setResponseCode(ResponseCode.RESPONSE_ERROE);
@@ -237,9 +244,7 @@ public class WeatherDB {
                     }else {
                         city.setBlockFlag(true);
                     }
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date date = (Date) format.parse(cursor.getString(cursor.getColumnIndex("create_time")));
-                    city.setCreateAt(new Timestamp(date.getTime()));
+                    city.setCreateAt(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex("create_time"))));
                     //关联查询province
                     condition.clear();
                     condition.put("selection","id=?");
@@ -309,9 +314,7 @@ public class WeatherDB {
                     }else {
                         county.setBlockFlag(true);
                     }
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date date = (Date) format.parse(cursor.getString(cursor.getColumnIndex("create_time")));
-                    county.setCreateAt(new Timestamp(date.getTime()));
+                    county.setCreateAt(Timestamp.valueOf(cursor.getString(cursor.getColumnIndex("create_time"))));
                     //关联查询city
                     condition.clear();
                     condition.put("selection","id=?");
@@ -321,6 +324,7 @@ public class WeatherDB {
                         City city=((List<City>)queryData.getData()).get(0);
                         county.setCity(city);
                     }
+                    Log.d(TAG,county.toString());
                     list.add(county);
                 }while (cursor.moveToNext());
             }
