@@ -1,11 +1,23 @@
 package edu.nju.wxd.weather.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import edu.nju.wxd.weather.dao.WeatherDB;
 import edu.nju.wxd.weather.model.City;
 import edu.nju.wxd.weather.model.County;
 import edu.nju.wxd.weather.model.Province;
+import edu.nju.wxd.weather.model.Weather;
 
 /**
  * Created by wxd on 2016/12/25.
@@ -91,5 +103,60 @@ public class Utility {
 
         }
         return resultData;
+    }
+
+    /*
+      解析服务器返回的天气的json数据，并将结果存储到本地
+     */
+    public synchronized static ResultData handleWeatherResponse(Context context,String response){
+        ResultData resultData=new ResultData();
+        try {
+            JSONObject object=new JSONObject(response);
+            JSONObject weatherInfo=object.getJSONObject("weatherinfo");
+            Weather weather=new Weather();
+            weather.setCityName(weatherInfo.getString("city"));
+            weather.setWeatherCode(weatherInfo.getString("cityid"));
+            weather.setPublichTime(weatherInfo.getString("ptime"));
+            weather.setTemp1(weatherInfo.getString("temp1"));
+            weather.setTemp2(weatherInfo.getString("temp2"));
+            weather.setWeatherDesp(weatherInfo.getString("weather"));
+            saveWeatherInfo(context,weather);
+        }catch (JSONException e){
+            Log.e(TAG,e.getMessage());
+            resultData.setResponseCode(ResponseCode.RESPONSE_ERROE);
+            resultData.setDescription(e.getMessage());
+        }finally {
+            return resultData;
+        }
+
+    }
+
+    /*
+      将所有天气信息存储到SharedPreference中
+     */
+    private synchronized static ResultData saveWeatherInfo(Context context, Weather weather){
+        ResultData resultData=new ResultData();
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy年M月d日", Locale.CHINA);
+        SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(context).edit();
+
+        try {
+            editor.putBoolean("city_selected",true);
+            editor.putString("city_name",weather.getCityName());
+            editor.putString("weather_code",weather.getWeatherCode());
+            editor.putString("temp1",weather.getTemp1());
+            editor.putString("temp2",weather.getTemp2());
+            editor.putString("weather_desp",weather.getWeatherDesp());
+            editor.putString("publish_time",weather.getPublichTime());
+            editor.putString("current_date",sdf.format(new Date()));
+            editor.commit();
+        }catch (Exception e){
+            Log.e(TAG,e.getMessage());
+            resultData.setResponseCode(ResponseCode.RESPONSE_ERROE);
+            resultData.setDescription(e.getMessage());
+        }finally {
+
+            return resultData;
+        }
+
     }
 }
