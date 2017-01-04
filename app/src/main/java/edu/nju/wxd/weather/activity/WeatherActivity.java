@@ -5,6 +5,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView temp2;
     private TextView weatherDesp;
     private LinearLayout weatherInfoLayout;
+    private static final String TAG="WeatherActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,7 @@ public class WeatherActivity extends AppCompatActivity {
     查询县级代号对应的天气代号
      */
     private void queryWeatherCode(String countyCode){
-         String address="http://www.weather.com.cn/data/list3/city/"+countyCode+".xml";
+         String address="http://www.weather.com.cn/data/list3/city"+countyCode+".xml";
          queryFromServer(address,"countyCode");
     }
 
@@ -64,7 +66,7 @@ public class WeatherActivity extends AppCompatActivity {
     查询天气代号对应的天气
      */
     private void queryWeatherInfo(String weatherCode){
-        String address="http://www.weather.com.cn/data/cityinfo/"+weatherCode+".xml";
+        String address="http://www.weather.com.cn/data/cityinfo/"+weatherCode+".html";
         queryFromServer(address,"weatherCode");
     }
 
@@ -75,6 +77,7 @@ public class WeatherActivity extends AppCompatActivity {
         HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
             @Override
             public void onFinish(String response) {
+
                 if ("countyCode".equals(type)){
                     if (!TextUtils.isEmpty(response)){
                         String[] array=response.split("\\|");
@@ -82,24 +85,28 @@ public class WeatherActivity extends AppCompatActivity {
                             String weatherCode=array[1];
                             queryWeatherInfo(weatherCode);
                         }
-                    }else if ("weatherCode".equals(type)){
-                        Utility.handleWeatherResponse(WeatherActivity.this,response);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showWeather();
-                            }
-                        });
                     }
 
                 }else if ("weatherCode".equals(type)){
+                    Utility.handleWeatherResponse(WeatherActivity.this,response);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showWeather();
+                        }
+                    });
 
                 }
             }
 
             @Override
             public void onError(Exception e) {
-
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        publichTime.setText("同步失败");
+                    }
+                });
             }
         });
 
@@ -111,6 +118,7 @@ public class WeatherActivity extends AppCompatActivity {
     private void showWeather(){
         SharedPreferences preferences= PreferenceManager.getDefaultSharedPreferences(this);
         cityName.setText(preferences.getString("city_name",""));
+        Log.d(TAG,preferences.getString("city_name",""));
         publichTime.setText("今天"+preferences.getString("publish_time","")+"发布");
         currentTime.setText(preferences.getString("current_date",""));
         temp1.setText(preferences.getString("temp1",""));

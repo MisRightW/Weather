@@ -279,6 +279,7 @@ public class ChooseAreaActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         closeProgressDialog();
     }
 }
